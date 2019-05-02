@@ -1,0 +1,85 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://obniz.io/js/jquery-3.2.1.min.js"></script>
+</head>
+<body style="-webkit-touch-callout:none;-webkit-user-select:none;">
+
+<h3>GameControllerizer test</h3>
+<button id="b0" style="width:150px;height:150px">00</button>
+<button id="b1" style="width:150px;height:150px">01</button>
+<br>
+<button id="left" style="width:150px;height:150px">left</button>
+<button id="right" style="width:150px;height:150px">right</button>
+<br>
+
+<script>
+
+var WS_CLIENTS = {};
+const node_red_server = "noderedcon.azurewebsites.net/";
+// const port = 80;//1880
+
+  $('#left').mousedown(function () {
+    $.get(`https://${tWsHost}/dpad/hold/4`);
+  });
+  $('#left').mouseup(function () {
+    $.get(`https://${tWsHost}/dpad/hold/5`);
+  });
+  $('#right').mousedown(function () {
+    $.get(`https://${tWsHost}/dpad/hold/6`);
+  });
+  $('#right').mouseup(function () {
+    $.get(`https://${tWsHost}/dpad/hold/5`);
+  });
+
+  $('#b0').mousedown(function () {
+    $.get(`https://${tWsHost}/btn/hold/0`);
+  });
+  $('#b0').mouseup(function () {
+    $.get(`https://${tWsHost}/btn/release/0`);
+  });
+  $('#b1').mousedown(function () {
+    $.get(`https://${tWsHost}/btn/hold/1`);
+  });
+  $('#b1').mouseup(function () {
+    $.get(`https://${tWsHost}/btn/release/1`);
+  });
+
+    // Create WebSocket clients
+    const tWsHost = getQueryParam("wshost", node_red_server);
+    // const tWsPort = getQueryParam("wsport", port);
+    // const tWsUrl = `ws://${tWsHost}:${tWsPort}`;
+    const tWsUrl = `ws://${tWsHost}`;
+    console.info("Websocket host url = " +  tWsUrl);
+
+    WS_CLIENTS["ws/b1"] = createWsClient(tWsUrl, "ws/b1");
+    WS_CLIENTS["ws/b2"] = createWsClient(tWsUrl, "ws/b2");
+    WS_CLIENTS["ws/b3"] = createWsClient(tWsUrl, "ws/b3");
+    WS_CLIENTS["ws/b4"] = createWsClient(tWsUrl, "ws/b4");
+
+
+function getQueryParam(aQuery, aDefault){
+    const tUrlParams = new URLSearchParams(window.location.search);
+    return (tUrlParams.has(aQuery)) ? tUrlParams.get(aQuery) : aDefault;
+}
+function createWsClient(aUrl, aDev){
+    var tClients = null;
+    tClient = new WebSocket(`${aUrl}/${aDev}`);
+    tClient.onopen = function(e){
+        console.info(`[${aDev}] is online`)
+    };
+    tClient.onerror = function(e){
+        console.info(`[${aDev}] is offline`)
+    };
+	tClient.onmessage = function ( event ) {
+    console.log(event.data);
+	}
+    return tClient;
+}
+
+
+
+</script>
+</body>
+</html>
